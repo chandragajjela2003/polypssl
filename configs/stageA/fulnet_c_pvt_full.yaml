@@ -1,0 +1,10 @@
+# Stage A, checkpoint R2c: our MAIN model at 100% labels = Polyp-PVT + FULNet plug-ins (corrected FAL,
+# corrected UAL) + corrected structure loss, trained with the official Polyp-PVT recipe.
+# Compared with FULNet's published "Ours (Polyp-PVT)" row (ETIS 0.811, ColonDB 0.810) and with R1.
+name: fulnet_c_pvt_full
+model: {name: polyp_pvt, ual: corrected, pretrained: true}
+data: {img_size: 352, split: full, augment: none}
+fal: {mode: corrected, beta: 0.01, lam: 0.5, aug_weight: 0.1, prob: 0.5}
+loss: {type: structure, mode: corrected}
+train: {iterations: 8910, batch_size: 16, lr: 1.0e-4, weight_decay: 1.0e-4,
+        grad_clip: 0.5, grad_clip_mode: value, multiscale: [0.75, 1.0, 1.25]}

@@ -1,0 +1,93 @@
+# Every experiment of the project, by ID. Run one with:   python run.py --run <ID> --seed <k>
+# Results go to outputs/<ID>__<name>/seed<k>/ :
+#   model_final.pth (trained weights, kept)   log.csv   config.yaml   per_image.csv   summary.csv
+# and every finished training run is added to outputs/ALL_RESULTS.csv.
+# {seed} in a split name is replaced by the seed. Settings not listed come from the config file.
+#
+# kind: train      -> trains (resuming automatically after a disconnect), then evaluates on all test sets
+# kind: diagnosis  -> analyses the trained model of another run (`source`); trains nothing
+# ready: false     -> listed for the roadmap, but run.py refuses to start it yet (reason in `note`)
+
+runs:
+  A1:
+    name: polyp_pvt_reproduce
+    what: "Polyp-PVT reproduction, 100% labels, official recipe"
+    kind: train
+    config: configs/stageA/polyp_pvt_reproduce.yaml
+    legacy: polyp_pvt_reproduce        # old folders outputs/runs/<legacy>/ and outputs/results/<legacy>/
+  A2:
+    name: fulnet_faithful_mscan_full
+    what: "FULNet reproduction as released (optional)"
+    kind: train
+    config: configs/stageA/fulnet_faithful_mscan_full.yaml
+    legacy: fulnet_faithful_mscan_full
+  A3:
+    name: fulnet_c_mscan_full
+    what: "FULNet with corrected FAL/UAL/loss (optional)"
+    kind: train
+    config: configs/stageA/fulnet_c_mscan_full.yaml
+    legacy: fulnet_c_mscan_full
+  A4:
+    name: pvtfu_full
+    what: "PVT-FU, 100% labels (upper bound for B/D/E)"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {data: {split: full}}
+
+  B1:
+    name: pvtfu_sup_random5
+    what: "PVT-FU supervised, 5% random labels (lower bound)"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {data: {split: "random_5pct_seed{seed}"}}
+  B2:
+    name: pvtfu_mt_random5
+    what: "PVT-FU + Mean Teacher, 5% random labels (SSL baseline)"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, data: {split: "random_5pct_seed{seed}"}}
+
+  C1:
+    name: diagnosis_A1
+    what: "Why does A1 lose Dice on unseen hospitals? (size vs appearance)"
+    kind: diagnosis
+    source: A1
+  C2:
+    name: diagnosis_B2
+    what: "Same diagnosis for the Mean Teacher model B2"
+    kind: diagnosis
+    source: B2
+
+  D1:
+    name: pvtfu_mt_acls5
+    what: "Mean Teacher, 5% labels chosen by ACLS (appearance-clustered medoids)"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, data: {split: "acls_5pct_seed{seed}"}}
+  D2:
+    name: pvtfu_mt_compmatched5
+    what: "Control for D1: random labels with the same Kvasir:ClinicDB counts as ACLS"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, data: {split: "compmatched_5pct_seed{seed}"}}
+  D3:
+    name: pvtfu_mt_dinov2sel5
+    what: "Control for D1: same medoid selection on DINOv2 features"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, data: {split: "dinov2_5pct_seed{seed}"}}
+    ready: false
+    note: "the DINOv2 split files are built after the D1 pilot"
+
+  E1:
+    name: pvtfu_mt_zoommatch_random5
+    what: "Mean Teacher + ZoomMatch (targeted zoom-out mosaics), 5% random labels"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, zoom: {mode: targeted}, data: {split: "random_5pct_seed{seed}"}}
+  E2:
+    name: pvtfu_mt_fixed2_random5
+    what: "Control for E1: fixed 2x2 mosaic (MixPL-style), no size targeting"
+    kind: train
+    config: configs/pvtfu_base.yaml
+    overrides: {method: mean_teacher, zoom: {mode: fixed2}, data: {split: "random_5pct_seed{seed}"}}

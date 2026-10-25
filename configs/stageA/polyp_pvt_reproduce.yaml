@@ -1,0 +1,14 @@
+# Stage A, checkpoint R1: Polyp-PVT exactly as released (official Train.py defaults), 100% labels.
+# Target (paper, PraNet split): ETIS 0.787, ColonDB 0.808, Kvasir 0.917, ClinicDB 0.937, CVC-300 0.900.
+# Official recipe: 352 px, batch 16, AdamW lr 1e-4 wd 1e-4, NO flips/rotations (augmentation flag defaults
+# to off), multi-scale {0.75, 1, 1.25} with one optimiser step per scale, gradient VALUE clipping 0.5,
+# no learning-rate decay in effect, epochs 1..99 (= 99 x 90 batches = 8,910 iterations).
+# Differences, documented: we report the LAST checkpoint (official code keeps the best on test data) and
+# training masks are binarised (official: bilinear-resized soft masks).
+name: polyp_pvt_reproduce
+model: {name: polyp_pvt, ual: off, pretrained: true}
+data: {img_size: 352, split: full, augment: none}
+fal: {mode: off}
+loss: {type: structure, mode: faithful}
+train: {iterations: 8910, batch_size: 16, lr: 1.0e-4, weight_decay: 1.0e-4,
+        grad_clip: 0.5, grad_clip_mode: value, multiscale: [0.75, 1.0, 1.25]}

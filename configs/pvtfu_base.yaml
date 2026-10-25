@@ -1,0 +1,14 @@
+# PVT-FU: the network of every Stage B / D / E run (and A4).
+# Polyp-PVT (PVTv2-B2 encoder + CIM / CFM / SAM, final = P1 + P2) + corrected FAL + corrected UAL
+# (UAL on the CFM feature entering SAM, driven by P1). Fixed before any run; no tuning on test data.
+# Recipe: 320 px, FULNet augmentation, single-scale, AdamW lr 1e-4 wd 1e-4, gradient VALUE clipping 0.5
+# (Polyp-PVT), structure loss (corrected: pixel-weighted), batch 8 labelled (+ 8 unlabelled for Mean Teacher).
+# 17,820 iterations x 8 images = 142,560 training images = exactly what A1 used (8,910 x 16),
+# i.e. ~100 passes over the 1,378 unlabelled images at 5 %. The split is set per run in experiments.yaml.
+name: pvtfu
+model: {name: polyp_pvt, ual: corrected, pretrained: true}
+data: {img_size: 320, split: full, augment: fulnet}
+fal: {mode: corrected, beta: 0.01, lam: 0.5, aug_weight: 0.1, prob: 0.5}
+loss: {type: structure, mode: corrected}
+train: {iterations: 17820, batch_size: 8, lr: 1.0e-4, weight_decay: 1.0e-4,
+        grad_clip: 0.5, grad_clip_mode: value, multiscale: [1.0]}

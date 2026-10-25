@@ -1,0 +1,7 @@
+# torch / torchvision / numpy / opencv / scipy / pandas are preinstalled on Colab and Kaggle and are not
+# reinstalled here (reinstalling torch can break the platform's CUDA setup).
+timm>=1.0.0
+segmentation-models-pytorch>=0.3.4
+pyyaml>=6.0
+pytest>=8.0
+gdown>=5.1.0

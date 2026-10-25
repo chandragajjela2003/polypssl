@@ -1,0 +1,8 @@
+# Stage A, checkpoint R2b: FULNet-C (corrected FAL band, UAL from predictions, pixel-weighted loss),
+# 100% labels, same schedule as FULNet. Compared with R2a to measure the effect of the corrections.
+name: fulnet_c_mscan_full
+model: {name: fulnet_c, encoder: mscan_t, ual: corrected, pretrained: true}
+data: {img_size: 320, split: full}
+fal: {mode: corrected, beta: 0.01, lam: 0.5, aug_weight: 0.1, prob: 0.5}
+loss: {mode: corrected}
+train: {iterations: 18125, batch_size: 8, lr: 5.0e-5, weight_decay: 1.0e-4, grad_clip: 2.0}

@@ -1,0 +1,11 @@
+# generated / large files never go into the repository
+__pycache__/
+*.pyc
+.pytest_cache/
+/outputs/
+/data/
+/weights/
+*.pth
+*.zip
+*.npz
+.ipynb_checkpoints/
